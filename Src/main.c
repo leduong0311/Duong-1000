@@ -6,10 +6,10 @@
 
 #define		BUFF_SIZES			9
 
-uint8_t txbuff[];
+uint8_t txbuff[9];
 //uint8_t temp=0,temp1=0,hum=0,hum1=0;
 float temp=0,hum =0;
-int temp1 = 0; hum1 = 0;
+int temp1 = 0, hum1 = 0;
 uint8_t count=0;
 uint8_t buffer[4];
 void init_main(void);
@@ -20,14 +20,21 @@ int main()
 	//SysTick_Config(SystemCoreClock/100);
     I2C_Config();
 		init_main();
+	   TIM_OCInitTypeDef TIM_OCStruct;
+		TIM_OCStruct.TIM_OCMode = TIM_OCMode_PWM1;
+    TIM_OCStruct.TIM_OutputState = TIM_OutputState_Enable;
+    TIM_OCStruct.TIM_OCPolarity = TIM_OCPolarity_High;
+	
     while (1)
     {
         I2C_Read(I2Cxx,SLAVE_ADDRESS,0x00,buffer,4);
 				SystickDelay_ms(1000);
+			
 			   hum   = (float) ((int) buffer[0]) + ((float) buffer[1]/10);
 		     temp  = (float) ((int) buffer[2]) + ((float) buffer[3]/10);
 			   hum1 = (int) buffer[0]; 
-			temp1 = (int) buffer[2];
+			   temp1 = (int) buffer[2];
+			//////////////////tach cac so dua vao buffer/////////////////
 			txbuff[0] = hum1/10 + 48;
 			txbuff[1] = hum1 - (hum1/10)*10 + 48;
 			txbuff[2] = '.';
@@ -37,15 +44,21 @@ int main()
 			txbuff[6] = temp1 - (temp1/10)*10 + 48;
 			txbuff[7] = '.';
 			txbuff[8] = buffer[1] + 48;
+			 
 			//txbuff[0] = 
 			
 			//txbuff[0] = hum;
 		  //txbuff[1] = temp;
      //   if(tick_count == 100){
 			 //   tick_count = 0;
+			 ////////////uart dma/////////////////////
 			    DMA_ClearFlag(DMA1_Stream4, DMA_FLAG_TCIF4);
 			    DMA1_Stream4->NDTR = BUFF_SIZES;
 			    DMA_Cmd(DMA1_Stream4, ENABLE);
+					///////////////////////xung pwm///////////////////
+					TIM_OCStruct.TIM_Pulse = 9999; /* 25% duty cycle */
+       TIM_OC1Init(TIM4, &TIM_OCStruct);
+       TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
 		//}	
 				count++;
     }
@@ -56,6 +69,8 @@ void init_main(void)
   GPIO_InitTypeDef 	GPIO_InitStructure; 
 	USART_InitTypeDef USART_InitStructure;   
 	DMA_InitTypeDef  	DMA_InitStructure;
+	TIM_TimeBaseInitTypeDef TIM_BaseStruct;
+  TIM_OCInitTypeDef TIM_OCStruct;
    
   /* Enable GPIO clock */
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -63,11 +78,30 @@ void init_main(void)
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
 	/* Enable DMA1 clock */
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
-
+RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
   /* Connect UART4 pins to AF2 */  
   GPIO_PinAFConfig(GPIOA, GPIO_PinSource0, GPIO_AF_UART4);
   GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_UART4); 
-
+	 GPIO_PinAFConfig(GPIOD, GPIO_PinSource12, GPIO_AF_TIM4);
+////////////////////////////////////////////////////////
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_Init(GPIOD, &GPIO_InitStructure);
+		
+		TIM_BaseStruct.TIM_Prescaler = 83;
+		TIM_BaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
+		TIM_BaseStruct.TIM_Period = 9999; /* 10kHz PWM */
+    TIM_BaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_BaseStruct.TIM_RepetitionCounter = 0;
+		/* Initialize TIM4 */
+    TIM_TimeBaseInit(TIM4, &TIM_BaseStruct);
+    /* Start count on TIM4 */
+    TIM_Cmd(TIM4, ENABLE);  
+		
   /* GPIO Configuration for UART4 Tx */
   GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0;
   GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
@@ -76,6 +110,8 @@ void init_main(void)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
 
+
+//////////////////////////////////////////
   /* GPIO Configuration for USART Rx */
   GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1;
   GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
@@ -124,4 +160,17 @@ void init_main(void)
   DMA_Init(DMA1_Stream4, &DMA_InitStructure);
   DMA_Cmd(DMA1_Stream4, ENABLE);
 
+}
+///////////////////bo dieu khien pid///////////////////////
+float ek = 0, ek_1 =0,ek_2=0,uk = 0, uk_1 = 0,setpoint = 14,setpoint_pre = 14 ;
+float kp = 1.2,ki= 0.5 , kd =0.085 , T = 0.04;   
+float PID_control(float measure){
+ek_2 = ek_1;
+ek_1 = ek;
+ek = setpoint - measure;
+uk_1 = uk;
+uk = uk_1 +kp*(ek - ek_1) + ki*T/2*(ek + ek_1)+kd/T*(ek - 2*ek_1 +ek_2); 
+if(uk > 5) uk = 5;
+if(uk < 0) uk = 0;
+return(uk);
 }
