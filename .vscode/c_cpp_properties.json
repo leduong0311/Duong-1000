@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "Src",
+                "Mylib",
+                "STM32F4xx_StdPeriph_Driver/inc",
+                "E:\\STUDY\\192_semester\\Design_Project\\Document\\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\\Libraries\\CMSIS\\Include",
+                "STM32F4xx_StdPeriph_Driver\\Include"
+
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "USE_STDPERIPH_DRIVER",
+                "STM32F40_41xxx",
+                "HSE_VALUE=8000000"
+            ],
+            "compilerPath": "C:\\Program Files (x86)\\mingw-w64\\i686-8.1.0-posix-dwarf-rt_v6-rev0\\mingw32\\bin\\gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "clang-x86"
+        }
+    ],
+    "version": 4
+}
