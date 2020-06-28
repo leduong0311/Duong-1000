@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,STM32F40_41xxx,HSE_VALUE=8000000</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\Design_Project\Document\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\Libraries\CMSIS\Include;.\Src;.\STM32F4xx_StdPeriph_Driver\inc;..\..\..\Design_Project\Document\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\Libraries\CMSIS\Device\ST\STM32F4xx\Include;.\Mylib;..\..\..\Desktop\ES_Exam2_UART</IncludePath>
+              <IncludePath>..\..\..\Design_Project\Document\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\Libraries\CMSIS\Include;.\Src;.\STM32F4xx_StdPeriph_Driver\inc;..\..\..\Design_Project\Document\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\Libraries\CMSIS\Device\ST\STM32F4xx\Include;.\Mylib;..\..\..\Desktop\ES_Exam2_UART;..\..\..\Desktop\beginstm;D:\tài li?u các môn h?c\h? th?ng nhúng\btvn nhung\STM32F4xx_StdPeriph_Driver\inc;D:\tài li?u các môn h?c\h? th?ng nhúng\btvn nhung\STM32F4xx_StdPeriph_Driver\src</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -440,6 +440,16 @@
               <FileName>stm32f4xx_tim.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\Desktop\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_syscfg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\Desktop\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_syscfg.c</FilePath>
+            </File>
+            <File>
+              <FileName>misc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\Desktop\STM32F4xx_StdPeriph_Driver\src\misc.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -38,3 +38,4 @@
 .\objects\main.o: .\Mylib\DHT12.h
 .\objects\main.o: .\Mylib\Systick.h
 .\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
