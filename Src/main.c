@@ -6,7 +6,7 @@
 //#include "system_timetick.h"
 
 #define		BUFF_SIZES			9
-#define		BUFF_SIZE			2
+#define		BUFF_SIZE			4
 
 uint8_t 	rxbuff[BUFF_SIZE];
 uint8_t 	a[BUFF_SIZE];
@@ -49,6 +49,10 @@ int main()
     while (1)
     {
 			
+		  /////////////////////////////////
+			setpoint = (float)((a[0]-48)*10 + a[1] - 48 + (a[3] -48)/10);
+///////////////////////////////////////////			
+			
         I2C_Read(I2Cxx,SLAVE_ADDRESS,0x00,buffer,4);
 				SystickDelay_ms(500);
 			
@@ -67,8 +71,6 @@ int main()
 			txbuff[7] = '.';
 			txbuff[8] = buffer[1] + 48;
 		
-     //   if(tick_count == 100){
-			 //   tick_count = 0;
 			 ////////////uart dma/////////////////////
 			if(count == 2){
 				count = 0;
@@ -77,12 +79,12 @@ int main()
 			    DMA_Cmd(DMA1_Stream4, ENABLE);
 				 }
 					///////////////////////xung pwm///////////////////
-				 if(temp >= 39){
+				 if(temp >= 37.5){
 					TIM_OCStruct.TIM_Pulse = 0; /* 25% duty cycle */
        TIM_OC1Init(TIM4, &TIM_OCStruct);
        TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
 					 }
-				 if(temp < 37){
+				 if(temp < 38.5){
 					TIM_OCStruct.TIM_Pulse = 9999; /* 25% duty cycle */
        TIM_OC1Init(TIM4, &TIM_OCStruct);
        TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
